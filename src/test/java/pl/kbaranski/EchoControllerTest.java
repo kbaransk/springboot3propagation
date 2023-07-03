@@ -17,14 +17,21 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 @ActiveProfiles("test")
 @TestInstance(PER_CLASS)
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
-@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+        useMainMethod = SpringBootTest.UseMainMethod.WHEN_AVAILABLE)
 @Configuration
 @AutoConfigureObservability
 class EchoControllerTest {
 
+    private final WebClient webClient;
+
+    public EchoControllerTest(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
+
     @Test
     void shouldReturnEchoValue() {
-        var echoResponse = WebClient.create()
+        var echoResponse = webClient
                  .get()
                  .uri("http://localhost:8080/echo")
                  .exchangeToMono( this::handleResponse);
